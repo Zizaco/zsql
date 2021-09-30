@@ -1,17 +1,15 @@
 use std::fs::File;
-use std::path::Path;
 use std::io::{self, BufRead};
 use std::io::{Error, ErrorKind};
+use std::path::Path;
 
 pub struct CsvLoader {
-    csvs: Vec<Csv>
+    csvs: Vec<Csv>,
 }
 
 impl CsvLoader {
     fn new() -> Self {
-        Self {
-            csvs: vec![]
-        }
+        Self { csvs: vec![] }
     }
 
     fn load(&mut self, filepath: &str) -> Result<(), Error> {
@@ -24,7 +22,7 @@ impl CsvLoader {
 pub struct Csv {
     pub filename: String,
     pub columns: Vec<String>,
-    file: File
+    file: File,
 }
 
 impl Csv {
@@ -32,7 +30,10 @@ impl Csv {
         let file = File::open(filepath);
 
         if let Err(_) = file {
-            return Err(Error::new(ErrorKind::NotFound, format!("No such file '{}'", filepath)));
+            return Err(Error::new(
+                ErrorKind::NotFound,
+                format!("No such file '{}'", filepath),
+            ));
         }
 
         let file = file.unwrap();
@@ -42,8 +43,12 @@ impl Csv {
         Ok(Self {
             filename,
             columns,
-            file
+            file,
         })
+    }
+
+    pub fn lines(&self) -> io::Lines<io::BufReader<&File>> {
+        io::BufReader::new(&self.file).lines()
     }
 
     fn read_headers(file: &File, filename: &String) -> Result<Vec<String>, Error> {
@@ -51,16 +56,16 @@ impl Csv {
         let line = line_reader.next();
 
         if let None = line {
-            return Err(Error::new(ErrorKind::InvalidData, format!("Unable to read contents of '{}'", filename)))
+            return Err(Error::new(
+                ErrorKind::InvalidData,
+                format!("Unable to read contents of '{}'", filename),
+            ));
         }
 
-        let sanitize = |i: &str| String::from(i.trim().trim_start_matches("\"").trim_end_matches("\""));
+        let sanitize =
+            |i: &str| String::from(i.trim().trim_start_matches("\"").trim_end_matches("\""));
         let result = line.unwrap()?.split(',').map(sanitize).collect();
         Ok(result)
-    }
-
-    pub fn lines(&self) -> io::Lines<io::BufReader<&File>> {
-        io::BufReader::new(&self.file).lines()
     }
 }
 
@@ -75,7 +80,10 @@ pub mod tests {
         manager.load("test/fixtures/oscar_age.csv").unwrap();
 
         assert_eq!(manager.csvs[0].filename, "oscar_age.csv");
-        assert_eq!(manager.csvs[0].columns, ["Index", "Year", "Age", "Name", "Movie"]);
+        assert_eq!(
+            manager.csvs[0].columns,
+            ["Index", "Year", "Age", "Name", "Movie"]
+        );
     }
 
     #[test]
@@ -88,8 +96,11 @@ pub mod tests {
 
         match result {
             Err(err) => {
-                assert_eq!(err.to_string(), "No such file 'test/fixtures/file_that_doesnt_exists.csv'");
-            },
+                assert_eq!(
+                    err.to_string(),
+                    "No such file 'test/fixtures/file_that_doesnt_exists.csv'"
+                );
+            }
             Ok(_) => panic!("result is not error"),
         }
     }
