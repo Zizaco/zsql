@@ -1,4 +1,4 @@
-"Index", "Year", "Age", "Name", "Movie"
+"id", "Year", "Age", "Name", "Movie"
  1, 1928, 44, "Emil Jannings", "The Last Command The Way of All Flesh"
  2, 1929, 41, "Warner Baxter", "In Old Arizona"
  3, 1930, 62, "George Arliss", "Disraeli"

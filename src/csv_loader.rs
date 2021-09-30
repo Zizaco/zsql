@@ -1,21 +1,23 @@
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, Seek};
 use std::io::{Error, ErrorKind};
 use std::path::Path;
+use std::io::SeekFrom;
 
 pub struct CsvLoader {
     csvs: Vec<Csv>,
 }
 
 impl CsvLoader {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self { csvs: vec![] }
     }
 
-    fn load(&mut self, filepath: &str) -> Result<(), Error> {
-        self.csvs.push(Csv::new(filepath)?);
+    pub fn load(&mut self, filepath: &str) -> Result<&Csv, Error> {
+        let new_csv = Csv::new(filepath)?;
+        self.csvs.push(new_csv);
 
-        Ok(())
+        Ok(&self.csvs[self.csvs.len()-1])
     }
 }
 
@@ -36,9 +38,11 @@ impl Csv {
             ));
         }
 
-        let file = file.unwrap();
+        let mut file = file.unwrap();
         let filename = String::from(Path::new(filepath).file_name().unwrap().to_string_lossy());
-        let columns = Csv::read_headers(&file, &filename)?;
+        let columns = Csv::read_headers(&file, &filename, ',')?;
+
+        file.seek(SeekFrom::Start(0))?;
 
         Ok(Self {
             filename,
@@ -51,7 +55,7 @@ impl Csv {
         io::BufReader::new(&self.file).lines()
     }
 
-    fn read_headers(file: &File, filename: &String) -> Result<Vec<String>, Error> {
+    fn read_headers(file: &File, filename: &String, separator: char) -> Result<Vec<String>, Error> {
         let mut line_reader = io::BufReader::new(file).lines();
         let line = line_reader.next();
 
@@ -64,7 +68,7 @@ impl Csv {
 
         let sanitize =
             |i: &str| String::from(i.trim().trim_start_matches("\"").trim_end_matches("\""));
-        let result = line.unwrap()?.split(',').map(sanitize).collect();
+        let result = line.unwrap()?.split(separator).map(sanitize).collect();
         Ok(result)
     }
 }
@@ -82,7 +86,7 @@ pub mod tests {
         assert_eq!(manager.csvs[0].filename, "oscar_age.csv");
         assert_eq!(
             manager.csvs[0].columns,
-            ["Index", "Year", "Age", "Name", "Movie"]
+            ["id", "Year", "Age", "Name", "Movie"]
         );
     }
 
@@ -91,8 +95,6 @@ pub mod tests {
         let mut manager = CsvLoader::new();
 
         let result = manager.load("test/fixtures/file_that_doesnt_exists.csv");
-
-        println!("{:?}", result);
 
         match result {
             Err(err) => {
