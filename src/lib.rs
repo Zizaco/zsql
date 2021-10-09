@@ -1,7 +1,8 @@
 #![allow(dead_code)]
 
-mod csv_loader;
-mod sql_engine;
+pub mod csv_loader;
+pub mod sql_engine;
+pub mod sql_preproc;
 
 #[cfg(test)]
 mod tests {
