@@ -134,7 +134,6 @@ jobs:
         PKG_STAGING="${{ env.CICD_TEMPDIR }}/package"
         ARCHIVE_DIR="${PKG_STAGING}/${PKG_BASENAME}/"
         mkdir -p "${ARCHIVE_DIR}"
-        mkdir -p "${ARCHIVE_DIR}/autocomplete"
 
         # Binary
         cp "${{ steps.strip.outputs.BIN_PATH }}" "$ARCHIVE_DIR"

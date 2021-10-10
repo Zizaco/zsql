@@ -11,7 +11,7 @@ test: ## launch tests (and doc example tests)
 lint: ## lint and format code
 	cargo fmt && cargo check && cargo clippy
 
-compile: ## compiles executable in target directory
+build: ## compiles executable in target directory
 	cargo build
 
 target/strip.lock:
@@ -26,3 +26,6 @@ release: target/strip.lock ## create release executables
 
 recompile: ## compiles executable in target directory even if it already exists
 	cargo clean && cargo build
+
+install: ## install zsql locally
+	rustc -V && cargo -V && cargo install --path .
