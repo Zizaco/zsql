@@ -1,6 +1,6 @@
 [package]
 name = "zsql"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2018"
 authors = ["Zizaco <zizaco@gmail.com>"]
 homepage = "https://github.com/Zizaco"
