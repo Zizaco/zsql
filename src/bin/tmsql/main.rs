@@ -1,11 +1,11 @@
 use clap::{AppSettings, Clap};
 
-use tmsql::sql_engine::SqlEngine;
-use tmsql::sql_preproc;
+use zsql::sql_engine::SqlEngine;
+use zsql::sql_preproc;
 
 /// Runs SQL queries on csv files
 /// Example:
-///    tmsql "SELECT * from 'my csv file.csv'"
+///    zsql "SELECT * from 'my csv file.csv'"
 #[derive(Clap)]
 #[clap(version = "1.0", author = "Zizaco <zizaco@gmail.com>")]
 #[clap(setting = AppSettings::ColoredHelp)]

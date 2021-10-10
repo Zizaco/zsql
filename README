@@ -1,3 +1,3 @@
-# `tmsql` Query files via terminal
+# `zsql` Query files via terminal
 
-A terminal utility to easily run SQL queries in CSV files via terminal. `tmsql` is powered by rust and C.
+A terminal utility to easily run SQL queries in CSV files via terminal. `zsql` is powered by rust and C.
