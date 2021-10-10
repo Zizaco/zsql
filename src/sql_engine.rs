@@ -143,7 +143,7 @@ pub mod tests {
             .unwrap();
         engine.query("SELECT * FROM 'oscar_age' WHERE Year = '2014'");
 
-        let expected = "87,2014,44,Matthew McConaughey,Dallas Buyers Club\n".to_string();
+        let expected = format!("87,2014,44,Matthew McConaughey,Dallas Buyers Club{}", LINE_ENDING);
         assert_eq!(engine.output.contents, Some(expected))
     }
 }
