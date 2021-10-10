@@ -1,8 +1,8 @@
 use std::fs::File;
+use std::io::SeekFrom;
 use std::io::{self, BufRead, Seek};
 use std::io::{Error, ErrorKind};
 use std::path::Path;
-use std::io::SeekFrom;
 
 pub struct CsvLoader {
     csvs: Vec<Csv>,
@@ -17,7 +17,13 @@ impl CsvLoader {
         let new_csv = Csv::new(filepath)?;
         self.csvs.push(new_csv);
 
-        Ok(&self.csvs[self.csvs.len()-1])
+        Ok(&self.csvs[self.csvs.len() - 1])
+    }
+}
+
+impl Default for CsvLoader {
+    fn default() -> Self {
+        CsvLoader::new()
     }
 }
 
@@ -31,7 +37,7 @@ impl Csv {
     pub fn new(filepath: &str) -> Result<Self, Error> {
         let file = File::open(filepath);
 
-        if let Err(_) = file {
+        if file.is_err() {
             return Err(Error::new(
                 ErrorKind::NotFound,
                 format!("No such file '{}'", filepath),
@@ -55,11 +61,11 @@ impl Csv {
         io::BufReader::new(&self.file).lines()
     }
 
-    fn read_headers(file: &File, filename: &String, separator: char) -> Result<Vec<String>, Error> {
+    fn read_headers(file: &File, filename: &str, separator: char) -> Result<Vec<String>, Error> {
         let mut line_reader = io::BufReader::new(file).lines();
         let line = line_reader.next();
 
-        if let None = line {
+        if line.is_none() {
             return Err(Error::new(
                 ErrorKind::InvalidData,
                 format!("Unable to read contents of '{}'", filename),
@@ -67,7 +73,7 @@ impl Csv {
         }
 
         let sanitize =
-            |i: &str| String::from(i.trim().trim_start_matches("\"").trim_end_matches("\""));
+            |i: &str| String::from(i.trim().trim_start_matches('\"').trim_end_matches('\"'));
         let result = line.unwrap()?.split(separator).map(sanitize).collect();
         Ok(result)
     }

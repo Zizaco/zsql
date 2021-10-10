@@ -1,7 +1,7 @@
 use clap::{AppSettings, Clap};
 
-use tmsql::sql_preproc;
 use tmsql::sql_engine::SqlEngine;
+use tmsql::sql_preproc;
 
 /// Runs SQL queries on csv files
 /// Example:
@@ -19,7 +19,6 @@ struct Opts {
     /// SQL query to be executed. Example: "SELECT * from ./path/to/file.csv"
     query: String,
 }
-
 
 fn main() {
     let opts: Opts = Opts::parse();
