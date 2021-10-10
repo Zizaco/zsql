@@ -39,11 +39,11 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - { target: i686-pc-windows-msvc        , os: windows-2019                  }
-          - { target: i686-unknown-linux-gnu      , os: ubuntu-20.04, use-cross: true }
-          - { target: x86_64-apple-darwin         , os: macos-10.15                   }
-          - { target: x86_64-pc-windows-gnu       , os: windows-2019                  }
-          - { target: x86_64-unknown-linux-gnu    , os: ubuntu-20.04                  }
+          - { alias: windows-32  , target: i686-pc-windows-msvc     , os: windows-2019                  }
+          - { alias: windows-64  , target: x86_64-pc-windows-gnu    , os: windows-2019                  }
+          - { alias: linux-i686  , target: i686-unknown-linux-gnu   , os: ubuntu-20.04, use-cross: true }
+          - { alias: linux-x86_64, target: x86_64-unknown-linux-gnu , os: ubuntu-20.04                  }
+          - { alias: mac-x86_64  , target: x86_64-apple-darwin      , os: macos-10.15                   }
     steps:
     - name: Checkout source code
       uses: actions/checkout@v2
@@ -127,7 +127,7 @@ jobs:
       shell: bash
       run: |
         PKG_suffix=".tar.gz" ; case ${{ matrix.job.target }} in *-pc-windows-*) PKG_suffix=".zip" ;; esac;
-        PKG_BASENAME=${PROJECT_NAME}-v${PROJECT_VERSION}-${{ matrix.job.target }}
+        PKG_BASENAME=${PROJECT_NAME}-v${PROJECT_VERSION}-${{ matrix.job.alias }}
         PKG_NAME=${PKG_BASENAME}${PKG_suffix}
         echo ::set-output name=PKG_NAME::${PKG_NAME}
 
