@@ -3,6 +3,8 @@ use clap::{AppSettings, Clap};
 use zsql::sql_engine::SqlEngine;
 use zsql::sql_preproc;
 
+use color_eyre::eyre::Result;
+
 /// Runs SQL queries on csv files
 /// Example:
 ///    zsql "SELECT * from 'my csv file.csv'"
@@ -20,29 +22,49 @@ struct Opts {
     query: String,
 }
 
-fn main() {
+fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
+    let verbosity = opts.verbose;
+    setup_error_reporting(verbosity)?;
 
-    // println!("Query: {}", opts.query);
+    let result = run_query(opts.query);
+    display_error(result, verbosity);
 
-    // match opts.verbose {
-    //     0 => println!("No verbose info"),
-    //     1 => println!("Some verbose info"),
-    //     2 => println!("Tons of verbose info"),
-    //     _ => println!("Don't be ridiculous"),
-    // }
-
-    run_query(opts.query)
+    Ok(())
 }
 
-fn run_query(query: String) {
+fn run_query(query: String) -> Result<()> {
     let mut engine = SqlEngine::new(std::io::stdout());
     let (query, files) = sql_preproc::pop_filenames_from_query(&query);
     {
         let files: Vec<&str> = files.iter().map(|s| s as &str).collect();
-        engine.load_files(files).unwrap();
+        engine.load_files(files)?
     }
-    engine.query(&query);
+    engine.query(&query)?;
+    Ok(())
+}
+
+fn setup_error_reporting(verbosity: i32) -> Result<()> {
+    color_eyre::install()?;
+    if verbosity > 1 && std::env::var("RUST_BACKTRACE").is_err() {
+        let backtrace_level = if verbosity > 2 {
+            "full".to_string()
+        } else {
+            verbosity.to_string()
+        };
+        std::env::set_var("RUST_BACKTRACE", backtrace_level);
+    }
+    Ok(())
+}
+
+fn display_error(result: Result<()>, verbosity: i32) {
+    if let Err(err) = result {
+        eprintln!("{}", err);
+        if verbosity > 1 {
+            eprintln!("Error: {:?}", err);
+        }
+        std::process::exit(1);
+    }
 }
 
 #[cfg(test)]
@@ -51,6 +73,7 @@ pub mod tests {
 
     #[test]
     fn run_query_should_output() {
-        run_query("SELECT Name,Movie from test/fixtures/oscar_age.csv WHERE Year>2014".to_string());
+        run_query("SELECT Name,Movie from test/fixtures/oscar_age.csv WHERE Year>2014".to_string())
+            .unwrap();
     }
 }

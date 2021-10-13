@@ -1,6 +1,7 @@
 use super::csv_loader::CsvLoader;
-use rusqlite::{Connection, Result};
-use std::io::{Error, Write};
+use color_eyre::eyre::Result;
+use rusqlite::Connection;
+use std::io::Write;
 
 #[cfg(windows)]
 const LINE_ENDING: &'static str = "\r\n";
@@ -22,7 +23,7 @@ impl<T: Write> SqlEngine<T> {
         }
     }
 
-    pub fn load_files(&mut self, files: Vec<&str>) -> Result<(), Error> {
+    pub fn load_files(&mut self, files: Vec<&str>) -> Result<()> {
         for file in files {
             let csv = self.csv_loader.load(file)?;
             let columns = &csv.columns;
@@ -65,10 +66,10 @@ impl<T: Write> SqlEngine<T> {
 
                 // println!("{}", insert_statement);
 
-                transaction.execute(insert_statement.as_str(), []).unwrap();
+                transaction.execute(insert_statement.as_str(), [])?;
             }
 
-            transaction.commit().unwrap();
+            transaction.commit()?;
 
             // println!("INSERT COMPLETED");
         }
@@ -76,8 +77,8 @@ impl<T: Write> SqlEngine<T> {
         Ok(())
     }
 
-    pub fn query(&mut self, query: &str) {
-        let mut stmt = self.sqlite_conn.prepare(query).unwrap();
+    pub fn query(&mut self, query: &str) -> Result<()> {
+        let mut stmt = self.sqlite_conn.prepare(query)?;
 
         let column_count = stmt.column_count();
 
@@ -97,6 +98,8 @@ impl<T: Write> SqlEngine<T> {
             let out = format!("{}{}", row.unwrap(), LINE_ENDING);
             self.output.write_all(out.as_bytes()).unwrap();
         }
+
+        Ok(())
     }
 }
 
@@ -141,9 +144,14 @@ pub mod tests {
         engine
             .load_files(vec!["test/fixtures/oscar_age.csv"])
             .unwrap();
-        engine.query("SELECT * FROM 'oscar_age' WHERE Year = '2014'");
+        engine
+            .query("SELECT * FROM 'oscar_age' WHERE Year = '2014'")
+            .unwrap();
 
-        let expected = format!("87,2014,44,Matthew McConaughey,Dallas Buyers Club{}", LINE_ENDING);
+        let expected = format!(
+            "87,2014,44,Matthew McConaughey,Dallas Buyers Club{}",
+            LINE_ENDING
+        );
         assert_eq!(engine.output.contents, Some(expected))
     }
 }
