@@ -138,8 +138,8 @@ jobs:
         # Binary
         cp "${{ steps.strip.outputs.BIN_PATH }}" "$ARCHIVE_DIR"
 
-        # README, LICENSE and CHANGELOG files
-        cp "README.md" "$ARCHIVE_DIR"
+        # README and LICENSE
+        cp "README.md" "LICENSE" "$ARCHIVE_DIR"
 
         # base compressed package
         pushd "${PKG_STAGING}/" >/dev/null
@@ -182,6 +182,7 @@ jobs:
 
         # README and LICENSE
         install -Dm644 "README.md" "${DPKG_DIR}/usr/share/doc/${DPKG_BASENAME}/README.md"
+        install -Dm644 "LICENSE" "${DPKG_DIR}/usr/share/doc/${DPKG_BASENAME}/LICENSE"
 
         cat > "${DPKG_DIR}/usr/share/doc/${DPKG_BASENAME}/copyright" <<EOF
         Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
