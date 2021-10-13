@@ -1,5 +1,6 @@
 use super::csv_loader::CsvLoader;
 use color_eyre::eyre::Result;
+use log::{debug, info, trace};
 use rusqlite::Connection;
 use std::io::Write;
 
@@ -41,7 +42,7 @@ impl<T: Write> SqlEngine<T> {
                 column_list
             );
 
-            // println!("{}", create_statement);
+            debug!("In-memory statement: {}", create_statement);
 
             self.sqlite_conn
                 .execute(create_statement.as_str(), [])
@@ -64,23 +65,24 @@ impl<T: Write> SqlEngine<T> {
                         .join("\", \"")
                 );
 
-                // println!("{}", insert_statement);
+                trace!("{}", insert_statement);
 
                 transaction.execute(insert_statement.as_str(), [])?;
             }
 
             transaction.commit()?;
 
-            // println!("INSERT COMPLETED");
+            debug!("Lines inserted successfully");
         }
 
         Ok(())
     }
 
     pub fn query(&mut self, query: &str) -> Result<()> {
+        info!("Running query: {}", query);
         let mut stmt = self.sqlite_conn.prepare(query)?;
-
         let column_count = stmt.column_count();
+        info!("Got {} lines", column_count);
 
         let rows = stmt
             .query_map([], |row| {
@@ -93,7 +95,6 @@ impl<T: Write> SqlEngine<T> {
             })
             .expect("yeah");
 
-        // println!("SELECT RESULTS:");
         for row in rows {
             let out = format!("{}{}", row.unwrap(), LINE_ENDING);
             self.output.write_all(out.as_bytes()).unwrap();

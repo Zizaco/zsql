@@ -16,3 +16,5 @@ regex = "1.5"
 rusqlite = { version = "0.25.3", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 color-eyre = "0.5"
+log = "0.4"
+pretty_env_logger = "0.4"

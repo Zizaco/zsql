@@ -1,3 +1,4 @@
+use log::info;
 use regex::Regex;
 use std::path::Path;
 
@@ -9,6 +10,8 @@ pub fn pop_filenames_from_query(query: &str) -> (String, Vec<String>) {
         .captures_iter(&query)
         .map(|cap| cap[1].trim_matches('"').trim_matches('\'').to_string())
         .collect();
+
+    info!("Files in query {:?}", files);
 
     for file in &files {
         let table_name = Path::new(file)

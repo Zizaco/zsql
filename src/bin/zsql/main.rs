@@ -26,6 +26,7 @@ fn main() -> Result<()> {
     let opts: Opts = Opts::parse();
     let verbosity = opts.verbose;
     setup_error_reporting(verbosity)?;
+    setup_logging(verbosity);
 
     let result = run_query(opts.query);
     display_error(result, verbosity);
@@ -42,6 +43,19 @@ fn run_query(query: String) -> Result<()> {
     }
     engine.query(&query)?;
     Ok(())
+}
+
+fn setup_logging(verbosity: i32) {
+    if std::env::var("RUST_LOG").is_err() {
+        let backtrace_level = match verbosity {
+            1 => "error,warn,info",
+            2 => "error,warn,info,debug",
+            3 => "error,warn,info,debug,trace",
+            _ => "",
+        };
+        std::env::set_var("RUST_LOG", backtrace_level);
+    }
+    pretty_env_logger::init();
 }
 
 fn setup_error_reporting(verbosity: i32) -> Result<()> {

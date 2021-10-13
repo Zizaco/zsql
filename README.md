@@ -1,26 +1,26 @@
 # `zsql` run SQL queries on csv files
 
-A terminal utility to easily run SQL queries on CSV files. `zsql` is shipped as a _2.5 MB single binary_ powered by rust and C.
+A terminal utility to easily run SQL queries on CSV files. `zsql` is shipped as a _[small single binary](https://github.com/Zizaco/zsql/releases)_ powered by rust and C.
 
 ## Key features
 
 ```bash
 # Select lines from csv
-sql "SELECT * from ./path/to/oscar_age.csv WHERE Year > 2015" > selection.csv
+zsql "SELECT * from ./path/to/oscar_age.csv WHERE Year > 2015" > selection.csv
 
 # Select specific columns from csv
-sql "SELECT Age, Name from './name with spaces.csv'" | more
+zsql "SELECT Age, Name from './name with spaces.csv'" | more
 
 # Join files
-sql "SELECT O.OrderID, C.CustomerName, O.OrderDate
+zsql "SELECT O.OrderID, C.CustomerName, O.OrderDate
 FROM orders.csv AS O
 INNER JOIN customers.csv AS C ON O.CustomerID=C.CustomerID"
 
 # Choose separator
-sql -s "|" "SELECT Name, Age from ./separated_by_pipe.csv"
+zsql -s "|" "SELECT Name, Age from ./separated_by_pipe.csv"
 
 # Runs on windows 🟦
-sql.exe "SELECT COUNT(*) FROM .\file_on_windows.csv"
+zsql.exe "SELECT COUNT(*) FROM .\file_on_windows.csv"
 ```
 
 ## How to use
